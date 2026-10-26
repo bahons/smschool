@@ -17,6 +17,13 @@ ENV/
 *.swp
 *.swo
 
+# Generated Outputs & Temporary Uploads
+outputs/
+data/uploads/
+
+# Model weights
+yolov8n-pose.pt
+
 # OS
 Thumbs.db
 Desktop.ini
