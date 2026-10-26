@@ -1,3 +1,11 @@
 @echo off
 chcp 65001 > nul
-"C:\Users\bakyt\AppData\Local\Python\pythoncore-3.14-64\python.exe" run_demo.py %*
+setlocal
+
+set PYTHON_EXE=C:\Users\bakyt\AppData\Local\Python\pythoncore-3.14-64\python.exe
+if not exist "%PYTHON_EXE%" (
+    set PYTHON_EXE=python
+)
+
+"%PYTHON_EXE%" run_demo.py %*
+pause
