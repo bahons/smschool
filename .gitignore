@@ -17,10 +17,6 @@ ENV/
 *.swp
 *.swo
 
-# Temporary uploads
-data/uploads/*
-!data/uploads/.gitkeep
-
 # OS
 Thumbs.db
 Desktop.ini
