@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart School: AI Қауіпсіздік Мониторингі</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- Навигация жолағы -->
+  <header class="navbar">
+    <div class="nav-container">
+      <div class="logo">
+        <span class="logo-icon">🏫</span>
+        <div>
+          <span class="logo-title">Smart School AI</span>
+          <span class="logo-sub">Биомеханикалық қауіпсіздік жүйесі</span>
+        </div>
+      </div>
+      <div class="nav-links">
+        <a href="/docs" target="_blank" class="nav-link">📖 REST API (Swagger)</a>
+        <span class="badge online">● AI Өзегі белсенді</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Негізгі контейнер -->
+  <main class="main-container">
+
+    <!-- Жоғарғы ақпараттық блок -->
+    <section class="hero-section">
+      <h1>Мектеп камераларындағы қақтығыстарды ерте анықтау</h1>
+      <p>YOLOv8-pose қаңқа моделі, адамдар арасындағы арақашықтық және білектер кинетикасын талдау арқылы төбелесті нақты уақытта анықтайды. Бетті тану қолданылмайды.</p>
+    </section>
+
+    <!-- Демо үлгілерді таңдау түймелері -->
+    <section class="demo-buttons-section">
+      <h3>⚡ Дайын демо нәтижелерді көру:</h3>
+      <div class="demo-btn-group">
+        <button class="btn btn-outline" id="loadDemoCalm">
+          🟢 1-Үлгі: Тыныш сынып (НОРМА)
+        </button>
+        <button class="btn btn-outline danger" id="loadDemoFight">
+          🔴 2-Үлгі: Оқушылар төбелесі (ҚАУІП)
+        </button>
+        <button class="btn btn-outline info" id="loadComparison">
+          📊 Салыстырмалы инфографика
+        </button>
+      </div>
+    </section>
+
+    <!-- Видео жүктеу формасы -->
+    <section class="upload-section card">
+      <h2>📤 Жаңа видео жүктеу және талдау</h2>
+      
+      <div class="dropzone" id="dropzone">
+        <div class="dropzone-content">
+          <div class="upload-icon">🎥</div>
+          <p class="dropzone-text">Видеоны осында сүйреп тастаңыз немесе таңдау үшін басыңыз</p>
+          <span class="dropzone-hint">Қолдау көрсетілетін форматтар: MP4, AVI, MOV (макс. 100 МБ)</span>
+        </div>
+        <input type="file" id="videoFileInput" accept="video/mp4,video/avi,video/quicktime,video/x-matroska" hidden>
+      </div>
+
+      <div class="selected-file-info" id="selectedFileInfo" style="display: none;">
+        <span>Таңдалған файл: <strong id="selectedFileName">video.mp4</strong></span>
+        <button type="button" class="btn-clear" id="clearFileBtn">✕</button>
+      </div>
+
+      <div class="upload-options">
+        <label class="checkbox-label">
+          <input type="checkbox" id="blurHeadCheck">
+          <span>🔒 <strong>Жеке құпиялылық (--blur-head)</strong>: Бас аймағын бұлдырлау (этикалық презентация)</span>
+        </label>
+      </div>
+
+      <div class="action-row">
+        <button class="btn btn-primary" id="startAnalyzeBtn" disabled>
+          ▶ Талдауды бастау (AI Анализ)
+        </button>
+      </div>
+
+      <!-- Прогресс индикаторы -->
+      <div class="progress-container" id="progressContainer" style="display: none;">
+        <div class="spinner"></div>
+        <div class="progress-details">
+          <span id="progressText">Видео жүктелуде және өңделуде...</span>
+          <span class="progress-sub">YOLOv8-pose қаңқасы мен білек кинетикасы есептелуде</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Нәтижелер бөлімі -->
+    <section class="results-section card" id="resultsSection" style="display: none;">
+      
+      <!-- Статус баннері -->
+      <div class="status-banner" id="statusBanner">
+        <div class="status-icon" id="statusIcon">🟢</div>
+        <div>
+          <div class="status-title" id="statusTitle">НОРМА: Қауіп анықталмады</div>
+          <div class="status-desc" id="statusDesc">Индекс қауіп шегінен аспады, сынып тыныш күйде.</div>
+        </div>
+      </div>
+
+      <!-- Метрикалар кестесі -->
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <span class="metric-label">Қауіп күйі</span>
+          <span class="metric-value" id="valState">НОРМА</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label">Тіркелген дабыл</span>
+          <span class="metric-value" id="valAlerts">0</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label">Алғашқы дабыл сәті</span>
+          <span class="metric-value" id="valAlertTime">—</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label">Ең жоғары Conflict Index</span>
+          <span class="metric-value" id="valPeakIndex">0.00</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label">Өңдеу жылдамдығы</span>
+          <span class="metric-value" id="valFps">0.0 FPS</span>
+        </div>
+        <div class="metric-card">
+          <span class="metric-label">Орташа латенттілік</span>
+          <span class="metric-value" id="valLatency">0 ms</span>
+        </div>
+      </div>
+
+      <!-- Видео және График қатар -->
+      <div class="media-grid">
+        <!-- Өңделген видео -->
+        <div class="media-box">
+          <h3>🎬 Өңделген бейне (Қаңқа және HUD белгілерімен)</h3>
+          <video id="annotatedVideoPlayer" controls playsinline></video>
+        </div>
+
+        <!-- Conflict Index Графигі -->
+        <div class="media-box">
+          <h3>📈 Conflict Index уақыт сызығы</h3>
+          <img id="timelineImg" src="" alt="Conflict Timeline">
+        </div>
+      </div>
+
+      <!-- Дабыл кадры (бар болса) -->
+      <div class="alert-photo-box" id="alertPhotoBox" style="display: none;">
+        <h3>🚨 Дабыл іске қосылған сәттегі фото-дәлел</h3>
+        <img id="alertScreenshotImg" src="" alt="Alert Screenshot">
+      </div>
+
+    </section>
+
+    <!-- Инфографика модалы немесе блогы -->
+    <section class="comparison-section card" id="comparisonSection" style="display: none;">
+      <h2>📊 Салыстырмалы Инфографика (Тыныш vs Төбелес)</h2>
+      <img src="/outputs/comparison.png" alt="Comparison" class="img-responsive">
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <p>Smart School AI © 2026. Компьютерлік көру арқылы мектеп қауіпсіздігін арттыру платформасы.</p>
+  </footer>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,43 @@
+# Smart School - Demo & Testing Configuration
+
+videos:
+  normal:
+    path: "data/videos/video2.mp4"
+    name: "video2_calm"
+    description: "Тыныш отырған оқушылар"
+    expected_alert: false
+  conflict:
+    path: "data/videos/video1.mp4"
+    name: "video1_fight"
+    description: "Балалар төбелесі"
+    expected_alert: true
+
+model:
+  weights: "yolov8n-pose.pt"
+  conf: 0.35
+  iou: 0.5
+  imgsz: 640
+  device: "cpu"
+
+tracking:
+  tracker_type: "bytetrack.yaml"
+  persist: true
+
+conflict_analysis:
+  wrist_indices: [9, 10]
+  wrist_speed_weight: 0.60
+  proximity_weight: 0.30
+  motion_weight: 0.10
+  smoothing_alpha: 0.20
+  threshold_warning: 0.35
+  threshold_danger: 0.55
+  alert_duration_seconds: 2.0
+
+telegram:
+  enabled: false
+  bot_token: ""
+  chat_id: ""
+  location: "№204 Кабинет (2-қабат)"
+
+output:
+  base_dir: "outputs"
